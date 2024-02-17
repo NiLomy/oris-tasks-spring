@@ -20,6 +20,7 @@ repositories {
 dependencies {
     implementation("org.springframework:spring-webmvc:${properties["springVersion"]}")
     implementation("org.apache.tomcat.embed:tomcat-embed-jasper:${properties["tomcatVersion"]}")
+    implementation("com.google.code.gson:gson:2.10.1")
     compileOnly("org.projectlombok:lombok:1.18.30")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
