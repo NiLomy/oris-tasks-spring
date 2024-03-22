@@ -2,7 +2,6 @@ package ru.kpfu.itis.lobanov.repositories;
 
 import lombok.Data;
 import ru.kpfu.itis.lobanov.model.User;
-import ru.kpfu.itis.lobanov.model.User_;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -27,10 +26,10 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
         query.distinct(true);
 
         Predicate predicate;
-        predicate = criteriaBuilder.isNotNull(root.get(User_.name));
+        predicate = criteriaBuilder.isNotNull(root.get("name"));
 
         query.where(predicate);
-        query.orderBy(criteriaBuilder.asc(root.get(User_.name)));
+        query.orderBy(criteriaBuilder.asc(root.get("name")));
         return entityManager.createQuery(query).getResultList();
     }
 }
