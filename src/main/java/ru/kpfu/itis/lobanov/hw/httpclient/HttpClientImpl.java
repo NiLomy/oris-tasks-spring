@@ -1,5 +1,7 @@
 package ru.kpfu.itis.lobanov.hw.httpclient;
 
+import org.springframework.stereotype.Component;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,14 +12,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class HttpClientImpl implements HttpClient {
-    private final String clientToken;
+    private String clientToken;
 
     public HttpClientImpl() {
         this.clientToken = "";
-    }
-
-    public HttpClientImpl(String clientToken) {
-        this.clientToken = clientToken;
     }
 
     @Override
@@ -115,5 +113,9 @@ public class HttpClientImpl implements HttpClient {
         paramsJson.deleteCharAt(paramsJson.length() - 1);
         paramsJson.append('}');
         return paramsJson.toString();
+    }
+
+    public void setClientToken(String clientToken) {
+        this.clientToken = clientToken;
     }
 }

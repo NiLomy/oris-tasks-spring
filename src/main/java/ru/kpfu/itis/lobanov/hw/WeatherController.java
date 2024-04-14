@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import ru.kpfu.itis.lobanov.hw.exceptions.WeatherApiConnectionException;
 import ru.kpfu.itis.lobanov.hw.httpclient.HttpClient;
+import ru.kpfu.itis.lobanov.hw.httpclient.HttpClientImpl;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/weather")
 public class WeatherController {
-    private final HttpClient httpClient;
+    private final HttpClient httpClient = new HttpClientImpl();
     public static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?q=%s&appid=143c9d8999112b2f489a1e3a44de6ade";
     public static final String MAIN_KEY = "main";
     public static final String TEMP_KEY = "temp";
@@ -26,11 +27,6 @@ public class WeatherController {
     public static final String RESPONSE_STRING = "<b>Temperature:</b> %s °C<br><b>Humidity:</b> %s%%<br><b>Precipitation:</b> %s";
     public static final String TEMPERATURE_FORMAT = "#0.00";
     public static final int KELVIN_IN_CELSIUS = 273;
-
-    @Autowired
-    public WeatherController(HttpClient httpClient) {
-        this.httpClient = httpClient;
-    }
 
     @GetMapping
     public String getWeather(@RequestParam("town") String townName) {

@@ -16,6 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
+    Optional<User> findByVerificationCode(String verificationCode);
+
     @Query(value = "select * from users u.name = ?1", nativeQuery = true)
     List<User> findAllByNameSQL(String name);
 

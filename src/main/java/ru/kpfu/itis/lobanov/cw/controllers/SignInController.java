@@ -8,9 +8,7 @@ import ru.kpfu.itis.lobanov.services.UserService;
 
 @Controller
 @RequestMapping("/sign_in")
-@RequiredArgsConstructor
 public class SignInController {
-    private final UserService userService;
 
     @GetMapping
     public String getSignInPage() {

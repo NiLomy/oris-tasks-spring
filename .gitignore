@@ -40,3 +40,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/src/main/resources/application.yaml
+/src/main/resources/db/changelog
+/src/test/resources/application.yaml

@@ -1,11 +1,16 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.util.Properties
 
 plugins {
     id("java")
-    id("war")
+//    id("war")
+//    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.springframework.boot") version "2.7.17"
     id("application")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.liquibase.gradle") version "2.2.0"
+    id("jacoco")
 }
+
+apply(plugin = "io.spring.dependency-management")
 
 application {
     mainClass = "ru.kpfu.itis.lobanov.Main"
@@ -19,40 +24,94 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework:spring-webmvc:${properties["springVersion"]}")
-    implementation("org.springframework:spring-jdbc:${properties["springVersion"]}")
-    implementation("org.springframework:spring-orm:${properties["springVersion"]}")
-    implementation("org.springframework:spring-context-support:${properties["springVersion"]}")
-    implementation("org.springframework.security:spring-security-core:${properties["springSecurityVersion"]}")
-    implementation("org.springframework.security:spring-security-web:${properties["springSecurityVersion"]}")
-    implementation("org.springframework.security:spring-security-config:${properties["springSecurityVersion"]}")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.security:spring-security-taglibs:${properties["springSecurityVersion"]}")
-    implementation("org.springframework.data:spring-data-jpa:${properties["dataJpaVersion"]}")
-    implementation("org.hibernate:hibernate-core:${properties["hibernateVersion"]}")
-    implementation("org.hibernate:hibernate-entitymanager:${properties["hibernateVersion"]}")
-//    implementation("org.hibernate:hibernate-validator:${properties["hibernateVersion"]}")
-    implementation("org.freemarker:freemarker:${properties["freemarkerVersion"]}")
-    implementation("org.apache.tomcat.embed:tomcat-embed-jasper:${properties["tomcatVersion"]}")
+    testImplementation("org.projectlombok:lombok:1.18.28")
+    annotationProcessor("org.hibernate:hibernate-jpamodelgen:${properties["hibernateVersion"]}")
     implementation("com.google.code.gson:gson:${properties["gsonVersion"]}")
-    implementation("com.mchange:c3p0:${properties["c3p0Version"]}")
     implementation("org.postgresql:postgresql:${properties["postgresqlVersion"]}")
+    implementation("org.springframework.boot:spring-boot-starter-freemarker")
+    implementation("org.apache.tomcat:tomcat-jsp-api:10.1.20")
+//    implementation("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0")
+    implementation("javax.servlet.jsp:jsp-api:2.1")
     compileOnly("org.projectlombok:lombok:${properties["lombokVersion"]}")
     annotationProcessor("org.projectlombok:lombok:${properties["lombokVersion"]}")
-    annotationProcessor("org.hibernate:hibernate-jpamodelgen:${properties["hibernateVersion"]}")
     runtimeOnly("org.postgresql:postgresql")
-    testImplementation(platform("org.junit:junit-bom:${properties["junitVersion"]}"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.2.0")
+
+    implementation("javax.mail:javax.mail-api:1.6.2")
+    implementation("org.springframework.boot:spring-boot-devtools:2.6.0")
+    implementation("org.liquibase:liquibase-core:4.20.0")
+    liquibaseRuntime("org.liquibase:liquibase-core:4.20.0")
+    liquibaseRuntime("org.postgresql:postgresql:${properties["postgresqlVersion"]}")
+    liquibaseRuntime("info.picocli:picocli:4.6.3")
 }
 
-tasks.withType<ShadowJar> {
-//    archiveFileName.set("hello.jar")
-    mergeServiceFiles()
-//    manifest {
-//        attributes(mapOf("Main-Class" to "${properties["mainClassName"]}"))
-////        attributes
-//    }
-}
+//tasks.test {
+//    useJUnitPlatform()
+//}
 
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(false)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+    classDirectories.setFrom(files(classDirectories.files.map {
+        fileTree(it) {
+            exclude("**/exceptions/**",
+                    "**/dtos/**",
+                    "**/model/**",
+                    "**/repositories/**",
+                    "**/security/**",
+                    "**/Application.class",
+                    "**/httpclient/**",
+                    "**/hw/**",
+                    "**/configs/**")
+        }
+    }))
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+    reportsDirectory.set(layout.buildDirectory.dir("customJacocoReportDir"))
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.5".toBigDecimal() // 50% должно быть покрыто
+            }
+        }
+    }
+}
+
+var props = Properties()
+props.load(file("src/main/resources/liquibase.properties").inputStream())
+
+liquibase {
+    activities.register("main") {
+        arguments = mapOf(
+            "changeLogFile" to props.get("change-log-file"),
+            "url" to props.get("url"),
+            "username" to props.get("username"),
+            "password" to props.get("password"),
+            "driver" to props.get("driver-class-name"),
+        )
+    }
 }

@@ -1,30 +1,22 @@
 package ru.kpfu.itis.lobanov.configs;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import ru.kpfu.itis.lobanov.security.AuthProvider;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@ComponentScan("ru.kpfu.itis.lobanov.security")
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final AuthProvider authProvider;
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers("/index", "/sign_up", "/sign_in").anonymous()
-                .antMatchers("/profile").hasAnyRole("USER", "ADMIN")
-                .antMatchers("/admin/**").hasRole("ADMIN");
-
-        http.csrf().disable()
+public class SecurityConfig {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf().disable()
                 .formLogin()
                 .loginPage("/sign_in")
                 .loginProcessingUrl("/login/process")
@@ -37,11 +29,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/sign_in")
                 .and()
                 .exceptionHandling();
-//                .accessDeniedHandler();
+
+        return httpSecurity.authorizeRequests()
+                .antMatchers("/index", "/sign_up", "/sign_in").anonymous()
+                .antMatchers("/profile").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().permitAll()
+                .and().build();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(authProvider);
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

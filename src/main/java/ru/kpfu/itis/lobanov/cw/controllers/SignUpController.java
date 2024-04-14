@@ -10,7 +10,6 @@ import ru.kpfu.itis.lobanov.services.UserService;
 @RequestMapping("/sign_up")
 @RequiredArgsConstructor
 public class SignUpController {
-    private final UserService userService;
 
     @GetMapping
     public String getSignUpPage() {

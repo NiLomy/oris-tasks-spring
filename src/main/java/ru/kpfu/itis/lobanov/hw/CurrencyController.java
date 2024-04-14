@@ -3,6 +3,7 @@ package ru.kpfu.itis.lobanov.hw;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kpfu.itis.lobanov.hw.exceptions.CurrencyApiConnectionException;
 import ru.kpfu.itis.lobanov.hw.httpclient.HttpClient;
+import ru.kpfu.itis.lobanov.hw.httpclient.HttpClientImpl;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -18,7 +20,7 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/currency")
 public class CurrencyController {
-    private final HttpClient httpClient;
+    private final HttpClient httpClient = new HttpClientImpl();
     public static final String CURRENCY_URL = "https://api.currencyapi.com/v3/latest?apikey=cur_live_9tIrbp9F7yqdtjV1dSJCRZl35iJJ7KFUhqYUpoqG";
     public static final String META_KEY = "meta";
     public static final String LAST_UPDATED_KEY = "last_updated_at";
@@ -26,11 +28,6 @@ public class CurrencyController {
     public static final String VALUE_KEY = "value";
     public static final String RESPONSE_STRING = "<b>Statistics on %s</b><br>1 USD = %s %s<br>1 %s = %s USD";
     public static final String CURRENCY_FORMAT = "#0.00";
-
-    @Autowired
-    public CurrencyController(HttpClient httpClient) {
-        this.httpClient = httpClient;
-    }
 
     @GetMapping
     public String getCurrency(@RequestParam("code") String currencyCode) {
