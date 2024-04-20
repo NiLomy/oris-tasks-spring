@@ -4,8 +4,13 @@ import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.kpfu.itis.lobanov.aspect.annotations.Idempotent;
+import ru.kpfu.itis.lobanov.aspect.annotations.ValidateUserInfo;
 import ru.kpfu.itis.lobanov.configs.MailConfig;
 import ru.kpfu.itis.lobanov.dtos.CreateUserRequestDto;
 import ru.kpfu.itis.lobanov.dtos.UserDto;
@@ -21,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -80,5 +86,15 @@ public class UserServiceImpl implements UserService {
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    @ValidateUserInfo
+    @Idempotent
+    public void updateUser(UserDto userDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        user.setName(userDto.getName());
+        userRepository.save(user);
     }
 }

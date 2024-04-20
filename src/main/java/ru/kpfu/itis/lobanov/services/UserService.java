@@ -15,4 +15,6 @@ public interface UserService {
     boolean verify(String code);
 
     void sendVerificationCode(String mail, String name, String code, String baseUrl);
+
+    void updateUser(UserDto userDto);
 }

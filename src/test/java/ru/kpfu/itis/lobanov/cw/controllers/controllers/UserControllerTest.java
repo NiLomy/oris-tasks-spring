@@ -7,10 +7,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.kpfu.itis.lobanov.configs.SecurityConfig;
 import ru.kpfu.itis.lobanov.dtos.CreateUserRequestDto;
 import ru.kpfu.itis.lobanov.dtos.UserDto;
 import ru.kpfu.itis.lobanov.services.UserService;
@@ -30,6 +32,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static ru.kpfu.itis.lobanov.cw.controllers.utils.Constants.*;
 
 @WebMvcTest
+@Import(SecurityConfig.class)
 @ExtendWith(SpringExtension.class)
 public class UserControllerTest {
     @Autowired
@@ -61,7 +64,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = USER_NAME, roles = USER_ROLE_ADMIN)
     public void testGetSignUpPage() throws Exception {
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
