@@ -19,7 +19,6 @@ public class SecurityConfig {
         httpSecurity.csrf().disable()
                 .formLogin()
                 .loginPage("/sign_in")
-                .loginProcessingUrl("/login/process")
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .defaultSuccessUrl("/profile", true)
@@ -32,7 +31,7 @@ public class SecurityConfig {
 
         return httpSecurity.authorizeRequests()
                 .antMatchers("/index", "/sign_up", "/sign_in").anonymous()
-                .antMatchers("/profile").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/profile").hasAnyAuthority("USER", "ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
                 .and().build();

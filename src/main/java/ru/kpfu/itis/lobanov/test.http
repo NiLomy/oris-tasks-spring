@@ -1,2 +1,10 @@
 GET {{host}}/index
 
+###
+POST http://localhost:8080/users
+
+{
+  "name": "Nikita",
+  "email": "lobanov.nikita2018@yandex.ru",
+  "password": "qwerty"
+}

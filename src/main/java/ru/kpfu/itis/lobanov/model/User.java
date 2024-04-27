@@ -33,7 +33,7 @@ public class User {
     @Column(name = "verification_code", length = 128)
     private String verificationCode;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_role",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
